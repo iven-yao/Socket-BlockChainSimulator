@@ -32,6 +32,7 @@ typedef struct{
 	int amount;
 }list_item;
 
+// from Beej's
 void sigchld_handler(int s) {
 	int saved_errno = errno;
 
@@ -40,35 +41,7 @@ void sigchld_handler(int s) {
 	errno = saved_errno;
 }
 
-// get sockaddr, IPv4 or IPv6:
-void *get_in_addr(struct sockaddr *sa)
-{
-	if (sa->sa_family == AF_INET) {
-	//IPv4
-		return &(((struct sockaddr_in*)sa)->sin_addr);
-	}
-	//IPv6
-	return &(((struct sockaddr_in6*)sa)->sin6_addr);
-}
-
-void split_args2(char *args[], char *message) {
-	char *p = strtok(message, " ");
-	int i = 0;
-	while (p != NULL) {
-		args[i++] = p;
-		p = strtok (NULL, " ");
-	}
-}
-
-void parse_result(char *args[], char *message) {
-	char *p = strtok(message, "\n");
-	int i = 0;
-	while(p != NULL) {
-		args[i++] = p;
-		p = strtok(NULL, "\n");
-	}
-}
-
+// setting part from Beej's
 int setupTCP(char* port) {
 	int rv;
 	int sockfd;
@@ -153,6 +126,7 @@ char* clientName(char* port) {
 }
 
 int transfer(char* port, int serial, char* payer, char* payee, int amount){
+	// setting part from Beej's
 	int sockfd;
 	int rv;
 	int numbytes; 
@@ -213,6 +187,7 @@ int transfer(char* port, int serial, char* payer, char* payee, int amount){
 
 //balance(1), exist(2), serial(3)
 int query(char* port, char* username, int flag) {
+	// setting part from Beej's
 	int sockfd;
 	int rv;
 	int numbytes; 
@@ -308,6 +283,7 @@ char* getServerPort(int r) {
 }
 
 void getTXList(char* port, char* list) {
+	// setting part from Beej's
 	int sockfd;
 	int rv;
 	int numbytes; 

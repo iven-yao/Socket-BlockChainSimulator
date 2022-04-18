@@ -1,0 +1,72 @@
+* Name: Chih-Ken Yao
+* Student ID: 7958-3152-00
+* Done: Phase I, II, III, 
+   including CHECK WALLET, TXCOINS, TXLIST operations
+* files:
+   -clientA.c: connect serverM through TCP, send different messages to serverM by different command line message, print request and result messages on screen. 
+   
+   -clientB.c: same as clientA.c
+   
+   -serverM.c: waiting for clients to connect, read messages from clients and send messages to serverA/B/C through UDP. according to messages from clients, serverM might ask serverA/B/C for the balance of specific user, existence in network of specific user, the next serial number of all transaction, write a new transaction list in random server, and ask for all transaction data. After receiving needed information, serverM will send message to client through TCP for what client asked for. If client asked for a list, serverM will write all the transaction data in a file named "alichain.txt" in increasing order of serial number.
+   
+   -serverA.c: waiting for serverM to connect. upon receiving messages from serverM through UDP, this server will decode the message and do proper operation for the response. 
+   if server received:"balance::username", server will read the block file, and return the balance on this server to serverM.
+   if server received:"exist::username", server will read the block file, and check if the username ever appears in any transaction, if yes return 1, otherwise return 0 to serverM.
+   if server received:"serial", server will read the block file, and return the largest serial number among each transactions.
+   if server received:"transfer::serial::payer::payee::amount", server will write a new transaction into its block file.
+   if server received:"TXLIST", server will read the block file, and return whole content of block file to serverM.
+   
+   -serverB.c: same as serverA.c
+   
+   -serverC.c: same as serverA.c
+
+* format of messages:
+   clientA/B -> serverM:
+      -<username> 
+         to check username's balance
+      -<username>::<receiver>::<amount> 
+         to make a new transaction
+      -TXLIST 
+         to ask serverM generate a transaction list file
+      
+   serverM -> clientA/B:
+      -<status>::<balance> 
+         response of checking balance
+         status = 1, means success.
+         status = 2, means fail due to the user is not part of the network.
+      -<status>::<payload> 
+         response of making transaction
+         status = 1, means success, 
+         payload will be payer's balance
+         status = 0, means fail due to insufficient coins, 
+         payload will be payer's balance
+         status = 2, means fail due to one of user not in the network, 
+         payload will be username which is not in the network
+         status = 3, means fail due to both users not in the network, 
+         payload will be empty
+         
+   serverM -> serverA/B/C:
+      -balance::<username> 
+         to ask for username's balance
+      -exist::<username> 
+         to ask for username's existence
+      -serial 
+         to ask for largest serial numbers on the server
+      -transfer::<serial>::<payer>::<payee>::<amount>
+         to write the new transaction on the server
+      -TXLIST
+         to ask for whole transaction data
+
+   serverA/B/C -> server:
+      -<balance>
+         an integer response of balance
+      -<existence>
+         either 0 or 1 response of existence
+      -<serial number>
+         largest serial number
+      -<data>::<data>::<data>:: ...
+         response of TXLIST, every newline will be replaced by ::
+         
+* idiosyncrasy:
+
+* code reuse: the part setting up TCP and UDP are inspired from Beej's, others are my own work.
