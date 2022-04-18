@@ -121,7 +121,7 @@ void getTXList(char* buf) {
 	char payer[MAXBUFLEN];
 	char payee[MAXBUFLEN];
 	int amount;
-
+   
 	while (fscanf(ptr, "%d %s %s %d",&serial, payer, payee, &amount) == 4){
 		sprintf(buf+strlen(buf),"%d %s %s %d::",
 								serial, payer,payee,amount);

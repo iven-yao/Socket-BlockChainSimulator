@@ -312,7 +312,7 @@ void getTXList(char* port, char* list) {
 	int rv;
 	int numbytes; 
 	struct addrinfo hints, *servinfo, *p;
-	char buf[MAXBUFLEN];
+	char buf[MAXBUFLEN] ="";
 	char msg[MAXBUFLEN];
 	socklen_t addr_len;
 	struct sockaddr_storage their_addr;
@@ -362,8 +362,8 @@ void getTXList(char* port, char* list) {
 	printf("The main server received transactions from Server %s using UDP over port %s.\n", serverName(port), port);
    
 	close(sockfd);
+	strcat(list, buf);
 	
-	sprintf(list+strlen(list), "%s", buf);
 }
 
 void getAllTXList(char* list) {
@@ -430,6 +430,8 @@ void TCPConnection(int child_sockfd, char* port, struct sockaddr_storage their_a
 
 		message_buf[numbytes] = '\0';
 		fflush(stdout);
+		
+
 
 		char username[MAXBUFLEN];
 		char receiver[MAXBUFLEN];
@@ -445,7 +447,7 @@ void TCPConnection(int child_sockfd, char* port, struct sockaddr_storage their_a
 		}
 
 		if(amount > 0) {
-			printf("The main server received from %s to transfer %d coins to %s using TCP over port %s.\n",username, amount, receiver, port);
+			printf("The main server received from \"%s\" to transfer %d coins to \"%s\" using TCP over port %s.\n",username, amount, receiver, port);
 			int exist_payer = queryAllServer(username, 2);
 			int exist_payee = queryAllServer(receiver, 2);
 			
@@ -475,7 +477,7 @@ void TCPConnection(int child_sockfd, char* port, struct sockaddr_storage their_a
 					}
 				}
 				
-				printf("The main server sent the result of the transaction to client %s.", clientName(port));
+				printf("The main server sent the result of the transaction to client %s.\n", clientName(port));
 			
 			} else if(!exist_payer && !exist_payee) {
 			// both not in the network
@@ -503,15 +505,18 @@ void TCPConnection(int child_sockfd, char* port, struct sockaddr_storage their_a
 
 		} else {
 			if(strcmp(username, "TXLIST") == 0 ) {
-				char txList[MAXBUFLEN];
+				char txList[MAXBUFLEN] = "";
 				getAllTXList(txList);
 				writeToFile(txList);
 			} else {
+	   		printf("The main server received input=\"%s\" from the client using TCP over port %s.\n", username, port);
+			
 				int exist = queryAllServer(username,2);
 				if(!exist) {
-					
 					sprintf(result_buf, "0");
-					
+					if(send(child_sockfd, result_buf, sizeof result_buf, 0) == -1) {
+						perror("send");
+					}
 				} else {
 					int balance = queryAllServer(username,1);
 
@@ -519,9 +524,8 @@ void TCPConnection(int child_sockfd, char* port, struct sockaddr_storage their_a
 					if(send(child_sockfd, result_buf, sizeof result_buf, 0) == -1) {
 						perror("send");
 					}
-			
-					printf("The main server sent the current balance to client %s.\n", clientName(port));
 				}
+				printf("The main server sent the current balance to client %s.\n", clientName(port));
 			}
 		}
 
@@ -542,22 +546,6 @@ int main(void) {
 	struct sockaddr_storage their_addr_a, their_addr_b;
 	// used for accept() 
 	socklen_t sin_size; 
-	//using in receive or send
-	int numbytes; 
-	// temp saving place for receiving from client through TCP
-	char message_buf[100];
-	// temp saving place for sending results to client through TCP  
-	char result_buf[100]; 
-	char udp_send[50];
-	// buffer to receive map data from backend server
-	char udp_received[MAXBUFLEN];
-	// buffer to merge args from client and data from server A or B  
-	char queryC[MAXBUFLEN];      
-	char *splited_args[4];
-	// {shortest_dist, trans_delay, prop_delay, total_delay, ans_path}
-	char *parsed_results[5];    
-	int has_map_id = 0;
-	int vtx_valid = 0;
 
 	// set TCP sockets and make them nonblock
 	sockfd_a = setupTCP(MYPORT_TCP_A);

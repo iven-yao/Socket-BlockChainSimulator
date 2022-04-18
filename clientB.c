@@ -98,9 +98,9 @@ int main(int argc, char *argv[])
 	
 	if(argc == 2) {
 		if(strcmp(argv[1],"TXLIST") == 0) {
-			printf("ClientB sent a sorted list request to the main server.\n");
+			printf("Client B sent a sorted list request to the main server.\n");
 		} else {
-			printf("%s sent a balance enquiry request to the main server.\n",payload);
+			printf("\"%s\" sent a balance enquiry request to the main server.\n",payload);
 			if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
 				perror("recv");
 				exit(1);
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 			buf[numbytes] = '\0';
 		}
 	} else if(argc == 4) {
-		printf("%s has requested to transfer %s coins to %s.\n", payer, amount, payee);
+		printf("\"%s\" has requested to transfer %s coins to \"%s\".\n", payer, amount, payee);
 	   
 		if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
 			perror("recv");
@@ -128,27 +128,27 @@ int main(int argc, char *argv[])
 			char* token = strtok(buf, "::");
 			if(atoi(token) == 1) {
 				token = strtok(NULL,"::");
-				printf("The current balance of %s is : %s alicoins.\n",
+				printf("The current balance of \"%s\" is : %s alicoins.\n",
 				username, token);
 			} else {
-				printf("Unable to proceed with the request as %s is not part of the network.\n", username);
+				printf("Unable to proceed with the request as \"%s\" is not part of the network.\n", username);
 			}			
       }
    } else if(argc == 4) {
       char* token = strtok(buf, "::");
       if(atoi(token) == 1) {
          token = strtok(NULL,"::");
-         printf("%s successfully transferred %s alicoins to %s.\nThe current balance of %s is :%s alicoins.\n", payer, amount, payee, payer, token);
+         printf("\"%s\" has successfully transferred %s alicoins to \"%s\".\nThe current balance of \"%s\" is :%s alicoins.\n", payer, amount, payee, payer, token);
       } else if(atoi(token) == 0) {
          token = strtok(NULL,"::");
-         printf("%s was unable to transfer %s alicoins to %s because of insufficient balance.\nThe current balance of %s is :%s alicoins.\n", payer, amount, payee, payer, token);
+         printf("\"%s\" was unable to transfer %s alicoins to \"%s\" because of insufficient balance.\nThe current balance of \"%s\" is :%s alicoins.\n", payer, amount, payee, payer, token);
       } else if(atoi(token) == 2) {
       // one of client not in the network
          token = strtok(NULL,"::");
-         printf("Unable to proceed with the transaction as %s is not part of the network.\n", token);
+         printf("Unable to proceed with the transaction as \"%s\" is not part of the network.\n", token);
       } else if(atoi(token) == 3) {
       // both clients not in the network
-         printf("Unable to proceed with the transaction as %s and %s are not part of the network.\n", payer, payee);
+         printf("Unable to proceed with the transaction as \"%s\" and \"%s\" are not part of the network.\n", payer, payee);
       }
       
    }
