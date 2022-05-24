@@ -1,7 +1,3 @@
-* Name: Chih-Ken Yao
-* Student ID: 7958-3152-00
-* Done: Phase I, II, III, 
-   including CHECK WALLET, TXCOINS, TXLIST operations
 * files:
    -clientA.c: connect serverM through TCP, send different messages to serverM by different command line message, print request and result messages on screen. 
    
